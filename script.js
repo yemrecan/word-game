@@ -3,15 +3,16 @@ let currentRow = 0;
 let currentChar = 0;
 let currentWord = "";
 let correctWord = "";
-let charCount = {};
 let gameFinished = false;
+let correctArr = [];
+
 fetch("https://words.dev-apis.com/word-of-the-day")
   .then((response) => {
     return response.json();
   })
   .then((resObject) => {
     correctWord = resObject.word;
-    charCount = giveCharCount(correctWord);
+    correctArr = Array.from(correctWord);
   });
 
 document.addEventListener("keydown", async (e) => {
@@ -67,10 +68,11 @@ document.addEventListener("keydown", async (e) => {
 
       // eger kullanicinin karakteri dogru cevabin icinde varsa ama pozisyonu yanlissa
       if (correctWord.includes(userChar)) {
-        if (charCount[userChar] !== 0) {
+        const charIndex = correctArr.indexOf(userChar);
+        if (charIndex > -1) {
+          correctArr.splice(charIndex, 1);
           allChars[i].style.backgroundColor = "yellow";
           allChars[i].style.color = "black";
-          charCount[userChar]--;
         } else {
           allChars[i].style.backgroundColor = "gray";
           allChars[i].style.color = "white";
@@ -101,17 +103,4 @@ function isLetter(str) {
   if (str.length !== 1) return false;
   let regex = /^[a-zA-Z]+$/;
   return regex.test(str);
-}
-
-function giveCharCount(string) {
-  const chars = Array.from(string);
-  const result = {};
-  chars.forEach((char) => {
-    if (result[char]) {
-      result[char]++;
-    } else {
-      result[char] = 1;
-    }
-  });
-  return result;
 }
